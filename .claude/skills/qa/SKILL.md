@@ -65,7 +65,7 @@ npm run test:e2e          # Playwright: E2E tests from previous QA runs
 Note any failures — these are regressions and must be treated as High bugs.
 
 ### 6. Write Unit Tests
-Before E2E tests, identify and test isolated logic with Vitest in `src/__tests__/PROJ-X-*.test.ts`:
+Before E2E tests, identify and test isolated logic with Vitest. Place tests **co-located** next to the source file (e.g. `src/hooks/useFeature.test.ts` next to `src/hooks/useFeature.ts`):
 
 **What to unit test (evaluate each):**
 - Custom hooks with non-trivial logic (e.g. `useKanbanStorage`: localStorage read/write, error fallback)

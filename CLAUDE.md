@@ -47,14 +47,18 @@ All features tracked in `features/INDEX.md`. Every skill reads it at start and u
 - **Single Responsibility:** One feature per spec file
 - **shadcn/ui first:** NEVER create custom versions of installed shadcn components
 - **Human-in-the-loop:** All workflows have user approval checkpoints
+- **Tests:** Unit tests co-located next to source files (`useHook.test.ts` next to `useHook.ts`). E2E tests in `tests/`.
 
 ## Build & Test Commands
 
 ```bash
-npm run dev        # Development server (localhost:3000)
-npm run build      # Production build
-npm run lint       # ESLint
-npm run start      # Production server
+npm run dev          # Development server (localhost:3000)
+npm run build        # Production build
+npm run lint         # ESLint
+npm run start        # Production server
+npm test             # Vitest unit/integration tests
+npm run test:e2e     # Playwright E2E tests
+npm run test:all     # Both test suites
 ```
 
 ## Product Context
