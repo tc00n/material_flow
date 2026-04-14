@@ -22,7 +22,7 @@
 | PROJ-5 | Quellen & Senken Definition | Cancelled | [spec](PROJ-5-quellen-senken.md) | 2026-04-14 |
 | PROJ-6 | Materialfluss-Definition | Deployed | [spec](PROJ-6-materialfluss-definition.md) | 2026-04-14 |
 | PROJ-7 | Materialfluss-Visualisierung (Spaghetti-Diagramm) | Deployed | [spec](PROJ-7-materialfluss-visualisierung.md) | 2026-04-14 |
-| PROJ-8 | Kennzahlen-Berechnung | Planned | [spec](PROJ-8-kennzahlen-berechnung.md) | 2026-04-14 |
+| PROJ-8 | Kennzahlen-Berechnung | Architected | [spec](PROJ-8-kennzahlen-berechnung.md) | 2026-04-14 |
 | PROJ-9 | Auto-Layout-Optimierung | Planned | [spec](PROJ-9-auto-layout-optimierung.md) | 2026-04-14 |
 | PROJ-10 | Layout-Varianten Vergleich | Planned | [spec](PROJ-10-layout-varianten.md) | 2026-04-14 |
 | PROJ-11 | Export & Report (PDF) | Planned | [spec](PROJ-11-export-report.md) | 2026-04-14 |
