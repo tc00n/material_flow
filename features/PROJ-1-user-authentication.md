@@ -1,6 +1,6 @@
 # PROJ-1: User Authentication (Login/Logout)
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
 
@@ -191,4 +191,11 @@ Session (automatisch verwaltet):
 - **Impact:** Minor UX degradation; Supabase still enforces the limit server-side
 
 ## Deployment
-_To be added by /deploy_
+
+**Deployed:** 2026-04-14
+**Production URL:** https://material-flow-lyart.vercel.app
+**Platform:** Vercel (auto-deploy from GitHub `main`)
+
+- Login: https://material-flow-lyart.vercel.app/login
+- Forgot Password: https://material-flow-lyart.vercel.app/forgot-password
+- Auth Callback: https://material-flow-lyart.vercel.app/auth/callback

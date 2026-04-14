@@ -1,6 +1,6 @@
 # PROJ-2: Projekt-Dashboard (Projekte verwalten)
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
 
@@ -131,4 +131,9 @@ PROJ-1 (User Authentication): All 9 Chromium E2E tests still pass — **no regre
 - 2 Low bugs — do not block release
 
 ## Deployment
-_To be added by /deploy_
+
+**Deployed:** 2026-04-14
+**Production URL:** https://material-flow-lyart.vercel.app
+**Platform:** Vercel (auto-deploy from GitHub `main`)
+
+- Dashboard: https://material-flow-lyart.vercel.app/ (requires login)
