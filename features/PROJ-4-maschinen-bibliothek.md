@@ -1,8 +1,10 @@
 # PROJ-4: Maschinen & Anlagen Bibliothek
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
+**Deployed:** 2026-04-14
+**Tag:** v1.4.0-PROJ-4
 
 ## Dependencies
 - Requires: PROJ-3 (Layout Canvas) — Objekte werden aus der Bibliothek auf den Canvas gezogen

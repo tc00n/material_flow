@@ -1,8 +1,10 @@
 # PROJ-3: Layout Canvas (Drag & Drop)
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
+**Deployed:** 2026-04-14
+**Tag:** v1.3.0-PROJ-3
 
 ## Dependencies
 - Requires: PROJ-2 (Projekt-Dashboard) — Canvas wird innerhalb eines Projekts geöffnet

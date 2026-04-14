@@ -1,8 +1,10 @@
 # PROJ-7: Materialfluss-Visualisierung (Spaghetti-Diagramm)
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
+**Deployed:** 2026-04-14
+**Tag:** v1.7.0-PROJ-7
 
 ## Dependencies
 - Requires: PROJ-3 (Layout Canvas) — Visualisierung überlagert den Canvas

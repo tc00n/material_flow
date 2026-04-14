@@ -17,11 +17,11 @@
 |----|---------|--------|------|---------|
 | PROJ-1 | User Authentication (Login/Logout) | Deployed | [spec](PROJ-1-user-authentication.md) | 2026-04-14 |
 | PROJ-2 | Projekt-Dashboard (Projekte verwalten) | Deployed | [spec](PROJ-2-projekt-dashboard.md) | 2026-04-14 |
-| PROJ-3 | Layout Canvas (Drag & Drop) | Approved | [spec](PROJ-3-layout-canvas.md) | 2026-04-14 |
-| PROJ-4 | Maschinen & Anlagen Bibliothek | Approved | [spec](PROJ-4-maschinen-bibliothek.md) | 2026-04-14 |
+| PROJ-3 | Layout Canvas (Drag & Drop) | Deployed | [spec](PROJ-3-layout-canvas.md) | 2026-04-14 |
+| PROJ-4 | Maschinen & Anlagen Bibliothek | Deployed | [spec](PROJ-4-maschinen-bibliothek.md) | 2026-04-14 |
 | PROJ-5 | Quellen & Senken Definition | Cancelled | [spec](PROJ-5-quellen-senken.md) | 2026-04-14 |
-| PROJ-6 | Materialfluss-Definition | Approved | [spec](PROJ-6-materialfluss-definition.md) | 2026-04-14 |
-| PROJ-7 | Materialfluss-Visualisierung (Spaghetti-Diagramm) | Approved | [spec](PROJ-7-materialfluss-visualisierung.md) | 2026-04-14 |
+| PROJ-6 | Materialfluss-Definition | Deployed | [spec](PROJ-6-materialfluss-definition.md) | 2026-04-14 |
+| PROJ-7 | Materialfluss-Visualisierung (Spaghetti-Diagramm) | Deployed | [spec](PROJ-7-materialfluss-visualisierung.md) | 2026-04-14 |
 | PROJ-8 | Kennzahlen-Berechnung | Planned | [spec](PROJ-8-kennzahlen-berechnung.md) | 2026-04-14 |
 | PROJ-9 | Auto-Layout-Optimierung | Planned | [spec](PROJ-9-auto-layout-optimierung.md) | 2026-04-14 |
 | PROJ-10 | Layout-Varianten Vergleich | Planned | [spec](PROJ-10-layout-varianten.md) | 2026-04-14 |

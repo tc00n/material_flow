@@ -1,8 +1,10 @@
 # PROJ-6: Materialfluss-Definition
 
-## Status: In Progress
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
+**Deployed:** 2026-04-14
+**Tag:** v1.6.0-PROJ-6
 
 ## Dependencies
 - Requires: PROJ-4 (Maschinen Bibliothek) — Canvas-Objekte sind die Knoten des Flussgraphen
