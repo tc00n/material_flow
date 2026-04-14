@@ -154,6 +154,7 @@ Tables created by `/backend` on 2026-04-14 — canvas can now persist data to Su
   - Columns: `id`, `project_id`, `grid_cell_size` (NUMERIC, default 1.0), `canvas_width` (default 50), `canvas_height` (default 30), `created_at`, `updated_at`
 - **`canvas_objects`** — one row per placed element, FK to `canvas_layouts` with CASCADE delete
   - Columns: `id`, `canvas_layout_id`, `type` (enum: machine|source|sink), `label`, `pos_x`, `pos_y`, `width`, `height`, `color` (nullable), `created_at`, `updated_at`
+  - **Architektur-Entscheidung (2026-04-14):** `source` und `sink` als Typ-Werte werden nicht mehr verwendet (PROJ-5 cancelled). Alle Objekte verwenden `type = 'machine'`. Die Enum-Werte bleiben in der DB erhalten; eine Migration auf z.B. `machine|storage|workstation` ist optional und rein kosmetisch. Fixierte Objekte für die Optimierung werden in PROJ-9 als Randbedingungen zur Laufzeit angegeben — nicht durch den Typ vorab.
 - RLS enabled on both tables; policies restrict access to objects owned by the authenticated user (via `projects.user_id = auth.uid()`)
 - Indexes: `idx_canvas_layouts_project_id`, `idx_canvas_objects_layout_id`, `idx_canvas_objects_type`
 

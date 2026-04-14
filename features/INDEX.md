@@ -9,6 +9,7 @@
 - **In Review** - `/qa` active, testing in progress
 - **Approved** - `/qa` passed, no critical/high bugs, ready to deploy
 - **Deployed** - `/deploy` done, live in production
+- **Cancelled** - Feature dropped after review; spec documents rationale and impact on other features
 
 ## Features
 
@@ -18,7 +19,7 @@
 | PROJ-2 | Projekt-Dashboard (Projekte verwalten) | Deployed | [spec](PROJ-2-projekt-dashboard.md) | 2026-04-14 |
 | PROJ-3 | Layout Canvas (Drag & Drop) | Approved | [spec](PROJ-3-layout-canvas.md) | 2026-04-14 |
 | PROJ-4 | Maschinen & Anlagen Bibliothek | Approved | [spec](PROJ-4-maschinen-bibliothek.md) | 2026-04-14 |
-| PROJ-5 | Quellen & Senken Definition | Architected | [spec](PROJ-5-quellen-senken.md) | 2026-04-14 |
+| PROJ-5 | Quellen & Senken Definition | Cancelled | [spec](PROJ-5-quellen-senken.md) | 2026-04-14 |
 | PROJ-6 | Materialfluss-Definition | Planned | [spec](PROJ-6-materialfluss-definition.md) | 2026-04-14 |
 | PROJ-7 | Materialfluss-Visualisierung (Spaghetti-Diagramm) | Planned | [spec](PROJ-7-materialfluss-visualisierung.md) | 2026-04-14 |
 | PROJ-8 | Kennzahlen-Berechnung | Planned | [spec](PROJ-8-kennzahlen-berechnung.md) | 2026-04-14 |
