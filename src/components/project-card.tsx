@@ -54,7 +54,7 @@ export function ProjectCard({ project }: Props) {
       <Card className="group relative flex flex-col hover:shadow-md transition-shadow cursor-pointer">
         {/* Clickable area */}
         <a
-          href={`/projects/${project.id}`}
+          href={`/projects/${project.id}/canvas`}
           className="flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-t-lg"
           aria-label={`Projekt öffnen: ${project.name}`}
         >

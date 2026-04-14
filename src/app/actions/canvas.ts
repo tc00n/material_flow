@@ -24,6 +24,7 @@ export type CanvasObject = {
   width: number
   height: number
   color: string | null
+  machine_type_id: string | null
 }
 
 export type CanvasData = {

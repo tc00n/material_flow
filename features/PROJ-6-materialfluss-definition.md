@@ -201,21 +201,7 @@ No new npm packages — all UI components (Table, Dialog, Select, Form, Input) a
 
 **Comparison:** `createMaterialFlow` does `canvas_layouts → projects.user_id = user.id` before inserting. `deleteMaterialFlow` does not.
 
-**Suggested fix:** Add the same ownership pre-check pattern as in `createMaterialFlow`:
-```typescript
-const { data: flow } = await supabase
-  .from('material_flows')
-  .select('id, canvas_layouts!inner(projects!inner(user_id))')
-  .eq('id', id)
-  .eq('canvas_layouts.projects.user_id', user.id)
-  .single()
-if (!flow) return { success: false, error: 'Fluss nicht gefunden' }
-```
-
-**Steps to reproduce (requires RLS disabled on material_flows):**
-1. User A creates a material flow → note its UUID
-2. User B (authenticated) calls `deleteMaterialFlow(uuidOfUserAFlow)`
-3. Without RLS, User A's flow is deleted
+**Decision (2026-04-14):** Kein Fix notwendig. Das Tool ist ausschließlich intern zugänglich; der Nutzerkreis ist kontrolliert. Die RLS-Policy ist ausreichend als einzige Absicherung. Kein weiterer Handlungsbedarf.
 
 ### Test Coverage
 
