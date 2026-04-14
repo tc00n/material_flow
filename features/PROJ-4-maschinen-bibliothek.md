@@ -1,6 +1,6 @@
 # PROJ-4: Maschinen & Anlagen Bibliothek
 
-## Status: Architected
+## Status: Approved
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
 
@@ -106,8 +106,108 @@ CanvasPage (server component)
 ### Dependencies
 No new packages needed — Dialog, Input, Label, Button, Textarea already installed.
 
+## Implementation Notes (Frontend)
+
+**Built 2026-04-14**
+
+### New files
+- `src/app/actions/machine-types.ts` — server actions: `getMachineTypes`, `createMachineType`, `updateMachineType`, `deleteMachineType`
+- `src/components/canvas/machine-type-dialog.tsx` — shared create/edit dialog with 12 preset color swatches + custom hex input and live preview
+
+### Modified files
+- `src/app/actions/canvas.ts` — added `machine_type_id: string | null` to `CanvasObject`
+- `src/components/canvas/machine-node.tsx` — added `machine_type_id?: string` to `MachineNodeData`
+- `src/components/canvas/machine-sidebar.tsx` — full rewrite: static machine list → dynamic types from DB, with create/edit/delete per-type, search (shown only when >30 types), alphabetical sort; sources/sinks remain hardcoded (PROJ-5 scope)
+- `src/components/canvas/canvas-client.tsx` — accepts `initialMachineTypes`, passes to sidebar; `handleTypeUpdated` syncs all canvas nodes linked to edited type; `machine_type_id` persisted in save payload
+- `src/app/(protected)/projects/[id]/canvas/page.tsx` — fetches `getMachineTypes(projectId)` and passes to `CanvasClient`
+
+### Deviations from spec
+- None. Delete guard (check for instances) is implemented in the server action; the sidebar shows the error inline.
+
+## Implementation Notes (Backend)
+
+**Built 2026-04-14**
+
+### Database Migration: `create_machine_types_table`
+- Created `machine_types` table with columns: `id`, `project_id`, `name`, `width_m`, `height_m`, `color`, `description`, `created_at`
+- Constraints: `UNIQUE(project_id, name)`, `CHECK width_m >= 0.5`, `CHECK height_m >= 0.5`, `CHECK name length 1–100`
+- FK: `project_id → projects(id) ON DELETE CASCADE`
+- RLS enabled with 4 policies (SELECT/INSERT/UPDATE/DELETE) — all scoped to project owner via `auth.uid()`
+- Index: `idx_machine_types_project_id` on `(project_id, name)` for fast alphabetical lookups
+- Added `machine_type_id UUID NULLABLE` to `canvas_objects` with FK → `machine_types(id) ON DELETE SET NULL`
+- Partial index: `idx_canvas_objects_machine_type_id WHERE machine_type_id IS NOT NULL`
+
+### Server Actions (already written by frontend skill)
+- `src/app/actions/machine-types.ts` — all 4 actions verified correct; no changes needed
+
+### Deviations
+- None.
+
 ## QA Test Results
-_To be added by /qa_
+
+**QA Date:** 2026-04-14
+**Tester:** /qa skill
+**Status: APPROVED — No Critical or High bugs found**
+
+### Acceptance Criteria
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| AC-1 | Sidebar shows all defined machine/system types for the project | PASS |
+| AC-2 | Create type: Name (required), Width × Height in meters (required), Color (required), Description (optional) | PASS |
+| AC-3 | Each type rendered as a colored, labeled rectangle | PASS |
+| AC-4 | Drag & drop from library onto canvas places an instance of the type | PASS (code review) |
+| AC-5 | Multiple instances of the same type can be placed | PASS (code review) |
+| AC-6 | Edit type: all fields editable, changes update all placed instances | PASS (code review + `handleTypeUpdated` logic verified) |
+| AC-7 | Delete type: blocked with error message if instances exist on canvas | PASS (code review + server action logic verified) |
+| AC-8 | Library entries sorted alphabetically | PASS (server `.order('name')` + client-side sort after mutations) |
+
+### Edge Cases
+
+| Case | Result |
+|------|--------|
+| Duplicate type name → validation error "Name bereits vergeben" | PASS — server uses `ilike` (case-insensitive) |
+| Width or height < 0.5 → validation error | PASS — client validates + DB CHECK constraint enforces it |
+| Delete type with instances → blocked, message shows count | PASS — `deleteMachineType` counts instances before deletion |
+| > 30 types → search field appears | PASS — `showSearch = machineTypes.length > 30` |
+
+### Security Audit
+
+| Check | Result |
+|-------|--------|
+| Unauthenticated access to canvas (and library) blocked | PASS — server redirects to /login |
+| `createMachineType` verifies project ownership | PASS — joins to `projects` table with `user_id = auth.uid()` |
+| `updateMachineType` verifies ownership | PASS — join check on `projects.user_id` |
+| `deleteMachineType` verifies ownership | PASS — join check on `projects.user_id` |
+| Cross-project data access (RLS) | PASS — RLS policies scope SELECT/INSERT/UPDATE/DELETE to project owner |
+| Name input injection | PASS — `.trim()` applied; Supabase parameterized queries prevent SQL injection |
+| Unique name check is case-insensitive | PASS — `ilike` used on both create and update |
+
+### Bugs Found
+
+| ID | Severity | Description | Steps to Reproduce |
+|----|----------|-------------|-------------------|
+| BUG-4-1 | Low | Stale delete error persists after creating a new type | 1. Try to delete a type that has canvas instances → error appears. 2. Click "Neuer Typ" and create a new type → delete error message remains visible in sidebar. |
+
+### Test Suite
+
+- **Unit tests (Vitest):** 22 passed (no new tests needed — no extractable pure logic in this feature)
+- **E2E tests (Playwright):** 20 new tests added in `tests/PROJ-4-maschinen-bibliothek.spec.ts`
+  - Security: canvas route blocks unauthenticated access
+  - Sidebar tab structure (Maschinen / Quellen / Senken)
+  - Create dialog: all required fields present, validation messages, preview
+  - Color picker: 12 preset swatches, custom hex input (maxlength=7)
+  - Machine type item: color swatch, name, dimensions, edit/delete buttons
+  - Delete guard: singular/plural error message
+  - Alphabetical sort rendering
+  - Search filter behavior
+  - Empty state message
+  - Two regression tests for prior features
+- **Total E2E suite:** 45 passed
+
+### Production-Ready Decision: YES
+
+No Critical or High bugs. BUG-4-1 (Low) is a cosmetic UX issue that does not block any acceptance criterion.
 
 ## Deployment
 _To be added by /deploy_
