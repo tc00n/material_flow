@@ -1,6 +1,6 @@
 # PROJ-8: Kennzahlen-Berechnung
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
 
@@ -178,4 +178,8 @@ None.
 - **Regression:** 167/168 E2E tests pass (1 pre-existing Mobile Safari failure in PROJ-1, unrelated to this feature)
 
 ## Deployment
-_To be added by /deploy_
+
+**Date:** 2026-04-14
+**Tag:** v1.8.0-PROJ-8
+**Git:** pushed to `origin/main` (30ebbf3)
+**Vercel:** auto-deploy triggered via GitHub push to main
