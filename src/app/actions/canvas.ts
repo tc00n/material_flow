@@ -8,6 +8,8 @@ export type CanvasLayout = {
   grid_cell_size: number
   canvas_width: number
   canvas_height: number
+  cost_per_meter: number
+  meters_per_cell: number
   created_at: string
   updated_at: string
 }
@@ -93,28 +95,73 @@ export async function saveCanvasObjects(
 
   if (!layout) return { success: false, error: 'Not found or access denied' }
 
-  // Delete all and reinsert for simplicity (debounced, so not too frequent)
-  const { error: deleteError } = await supabase
+  // Upsert current objects — preserves existing IDs so that material_flows FK
+  // references (ON DELETE CASCADE) are not accidentally triggered.
+  if (objects.length > 0) {
+    const { error: upsertError } = await supabase
+      .from('canvas_objects')
+      .upsert(objects, { onConflict: 'id' })
+
+    if (upsertError) {
+      console.error('Error upserting canvas objects:', upsertError)
+      return { success: false, error: upsertError.message }
+    }
+  }
+
+  // Delete only objects that are no longer on the canvas (truly removed nodes).
+  // This keeps FK-referenced rows intact while still cleaning up deleted nodes.
+  const currentIds = objects.map((o) => o.id)
+  const deleteQuery = supabase
     .from('canvas_objects')
     .delete()
     .eq('canvas_layout_id', layoutId)
 
+  const { error: deleteError } = currentIds.length > 0
+    ? await deleteQuery.not('id', 'in', `(${currentIds.join(',')})`)
+    : await deleteQuery
+
   if (deleteError) {
-    console.error('Error deleting canvas objects:', deleteError)
+    console.error('Error deleting removed canvas objects:', deleteError)
     return { success: false, error: deleteError.message }
   }
 
-  if (objects.length === 0) {
-    return { success: true }
-  }
+  return { success: true }
+}
 
-  const { error: insertError } = await supabase
-    .from('canvas_objects')
-    .insert(objects)
+export type UpdateLayoutSettingsInput = {
+  layoutId: string
+  cost_per_meter: number
+  meters_per_cell: number
+}
 
-  if (insertError) {
-    console.error('Error inserting canvas objects:', insertError)
-    return { success: false, error: insertError.message }
+export async function updateLayoutSettings(
+  input: UpdateLayoutSettingsInput
+): Promise<SaveCanvasResult> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Unauthorized' }
+
+  const { data: layout } = await supabase
+    .from('canvas_layouts')
+    .select('id, projects!inner(user_id)')
+    .eq('id', input.layoutId)
+    .eq('projects.user_id', user.id)
+    .single()
+
+  if (!layout) return { success: false, error: 'Not found or access denied' }
+
+  const { error } = await supabase
+    .from('canvas_layouts')
+    .update({
+      cost_per_meter: input.cost_per_meter,
+      meters_per_cell: input.meters_per_cell,
+    })
+    .eq('id', input.layoutId)
+
+  if (error) {
+    console.error('Error updating layout settings:', error)
+    return { success: false, error: error.message }
   }
 
   return { success: true }

@@ -25,6 +25,7 @@ import { Station } from '@/components/canvas/flow-form-dialog'
 import { MachineSidebar, SidebarItem } from '@/components/canvas/machine-sidebar'
 import { PropertiesPanel } from '@/components/canvas/properties-panel'
 import { SpaghettiOverlay } from '@/components/canvas/spaghetti-overlay'
+import { KpiPanel } from '@/components/canvas/kpi-panel'
 import { Button } from '@/components/ui/button'
 import { useDebounce } from '@/hooks/use-debounce'
 
@@ -124,22 +125,26 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
   const [activeTab, setActiveTab] = useState<CanvasTab>('canvas')
   const [showSpaghetti, setShowSpaghetti] = useState(false)
   const [flows, setFlows] = useState<MaterialFlowWithLabels[]>([])
+  const [kpiSettings, setKpiSettings] = useState({
+    cost_per_meter: layout.cost_per_meter,
+    meters_per_cell: layout.meters_per_cell,
+  })
 
   const selectedNode = selectedNodeId ? nodes.find((n) => n.id === selectedNodeId) : null
 
-  // Toggle spaghetti overlay — fetch flows on first activation
+  // Load flows on mount for KPI panel
+  useEffect(() => {
+    getMaterialFlows(layout.id).then(setFlows)
+  }, [layout.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Toggle spaghetti overlay — flows already loaded
   async function handleToggleSpaghetti() {
-    const next = !showSpaghetti
-    setShowSpaghetti(next)
-    if (next) {
-      const fetched = await getMaterialFlows(layout.id)
-      setFlows(fetched)
-    }
+    setShowSpaghetti((prev) => !prev)
   }
 
-  // Re-fetch flows when returning to canvas tab with overlay active
+  // Re-fetch flows when returning to canvas tab
   useEffect(() => {
-    if (activeTab === 'canvas' && showSpaghetti) {
+    if (activeTab === 'canvas') {
       getMaterialFlows(layout.id).then(setFlows)
     }
   }, [activeTab]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -410,13 +415,22 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
             </div>
           </div>
 
-          {selectedNode && (
+          {selectedNode ? (
             <PropertiesPanel
               nodeId={selectedNode.id}
               data={selectedNode.data as MachineNodeData}
               onClose={() => setSelectedNodeId(null)}
               onDelete={handleDelete}
               onLabelChange={handleLabelChange}
+            />
+          ) : (
+            <KpiPanel
+              nodes={nodes}
+              flows={flows}
+              layout={{ ...layout, ...kpiSettings }}
+              onSettingsChange={(cost_per_meter, meters_per_cell) =>
+                setKpiSettings({ cost_per_meter, meters_per_cell })
+              }
             />
           )}
         </div>

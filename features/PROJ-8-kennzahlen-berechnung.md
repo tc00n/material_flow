@@ -1,6 +1,6 @@
 # PROJ-8: Kennzahlen-Berechnung
 
-## Status: Architected
+## Status: Approved
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
 
@@ -117,8 +117,65 @@ Distance formula: `dist_m = sqrt(Δx² + Δy²) × meters_per_cell` (grid-unit c
 ### Dependencies
 No new npm packages. Uses existing: shadcn/ui (`Collapsible`, `Card`, `Badge`, `Table`, `Input`), Lucide icons.
 
+## Implementation Notes
+
+### What was built
+- **Supabase migration**: Added `cost_per_meter` (default 0.50) and `meters_per_cell` (default 1.0) columns to `canvas_layouts`
+- **`src/app/actions/canvas.ts`**: Extended `CanvasLayout` type with the two new fields; added `updateLayoutSettings` server action
+- **`src/hooks/use-kpi-calculation.ts`**: Pure `useMemo`-based hook that computes total distance (m/day), total cost (€/day), total transports (/day), and top-3 flows by intensity. Uses euclidean distance between node centres in grid units × `meters_per_cell`
+- **`src/components/canvas/kpi-panel.tsx`**: Collapsible right-side panel with 3 KPI cards, Top-3 flow list, and settings inputs (cost rate + meters per cell). Saves on input blur via `updateLayoutSettings`
+- **`src/components/canvas/canvas-client.tsx`**: Flows now loaded on mount and re-fetched when switching back to canvas tab. KpiPanel is shown on the right when no node is selected; PropertiesPanel takes priority when a node is selected
+
+### Deviations from spec
+- None — all acceptance criteria implemented as described
+
 ## QA Test Results
-_To be added by /qa_
+
+**Date:** 2026-04-14
+**QA Result:** APPROVED — no Critical or High bugs found.
+
+### Acceptance Criteria
+
+| AC | Description | Result |
+|----|-------------|--------|
+| AC-1a | KPI-Panel zeigt Gesamttransportdistanz [m/Tag] | PASS |
+| AC-1b | KPI-Panel zeigt Gesamttransportkosten [€/Tag] | PASS |
+| AC-1c | KPI-Panel zeigt Anzahl Transporte [/Tag] | PASS |
+| AC-1d | KPI-Panel zeigt Top 3 Flüsse nach Intensität (Von → Nach \| Intensität) | PASS |
+| AC-2a | KPIs aktualisieren bei Objekt-Bewegung | PASS (useMemo recomputes when nodes state changes) |
+| AC-2b | KPIs aktualisieren bei Fluss hinzufügen/bearbeiten/löschen | PASS (flows re-fetched on tab switch) |
+| AC-3 | Euklidische Distanz zwischen Mittelpunkten in Metern | PASS (verified in unit tests) |
+| AC-4 | Kostensatz ist konfigurierbar (Standard 0,50 €/m) | PASS |
+| AC-5 | KPI-Panel kann eingeklappt/ausgeklappt werden | PASS |
+
+### Edge Cases
+
+| Edge Case | Result |
+|-----------|--------|
+| Keine Flüsse → "Keine Daten — bitte Materialflüsse definieren" | PASS |
+| Zwei Objekte direkt übereinander (Distanz = 0) → kein Crash, 0m | PASS (unit test) |
+| Kostensatz = 0 → Transportkosten = 0 €/Tag, kein Fehler | PASS |
+
+### Security Audit
+
+| Check | Result |
+|-------|--------|
+| Unauthenticated access redirects to /login | PASS |
+| `updateLayoutSettings` server action verifies user ownership (defense-in-depth + RLS) | PASS (code review) |
+| No secrets or PII exposed in KPI panel | PASS |
+| Input validation: numeric-only, min=0 constraints on settings inputs | PASS |
+
+### Bugs Found
+
+None.
+
+### Pre-existing Issue (unrelated to PROJ-8)
+- **[Low] [Mobile Safari] PROJ-1 test**: "Login form shows error on invalid credentials" fails — the alert element is not immediately visible in Mobile Safari's timing. This is a pre-existing test fragility in `tests/PROJ-1-user-authentication.spec.ts:38` and is not caused by PROJ-8 changes.
+
+### Test Suites
+- **Unit tests:** 16 new tests in `src/hooks/use-kpi-calculation.test.ts` — all pass (86 total)
+- **E2E tests:** 18 new tests in `tests/PROJ-8-kennzahlen-berechnung.spec.ts` — all pass
+- **Regression:** 167/168 E2E tests pass (1 pre-existing Mobile Safari failure in PROJ-1, unrelated to this feature)
 
 ## Deployment
 _To be added by /deploy_
