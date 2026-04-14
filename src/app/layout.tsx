@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Coding Starter Kit",
-  description: "Built with AI Agent Team System",
+  title: "NEONEX – Materialfluss-Analyse",
+  description: "Materialfluss-Analyse-Tool für Unternehmensberater",
 };
 
 export default function RootLayout({
