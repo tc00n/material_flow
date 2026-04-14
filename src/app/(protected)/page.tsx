@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { FolderOpen, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProjectCard } from '@/components/project-card'
@@ -13,9 +14,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="font-semibold text-sm tracking-tight">
-            Materialfluss-Analyse
-          </span>
+          <Image src="/logo.svg" alt="NEONEX" width={100} height={28} priority />
           <form action={logout}>
             <Button variant="ghost" size="sm" type="submit">
               <LogOut className="mr-2 h-4 w-4" />
