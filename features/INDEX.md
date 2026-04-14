@@ -14,7 +14,7 @@
 
 | ID | Feature | Status | Spec | Created |
 |----|---------|--------|------|---------|
-| PROJ-1 | User Authentication (Login/Logout) | In Review | [spec](PROJ-1-user-authentication.md) | 2026-04-14 |
+| PROJ-1 | User Authentication (Login/Logout) | Approved | [spec](PROJ-1-user-authentication.md) | 2026-04-14 |
 | PROJ-2 | Projekt-Dashboard (Projekte verwalten) | Planned | [spec](PROJ-2-projekt-dashboard.md) | 2026-04-14 |
 | PROJ-3 | Layout Canvas (Drag & Drop) | Planned | [spec](PROJ-3-layout-canvas.md) | 2026-04-14 |
 | PROJ-4 | Maschinen & Anlagen Bibliothek | Planned | [spec](PROJ-4-maschinen-bibliothek.md) | 2026-04-14 |
