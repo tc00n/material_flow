@@ -5,11 +5,11 @@
 **Last Updated:** 2026-04-14
 
 ## Dependencies
-- Requires: PROJ-4 (Maschinen Bibliothek) — Maschinen sind die Knoten des Flussgraphen
-- Requires: PROJ-5 (Quellen & Senken) — Quellen und Senken sind Start/Endpunkte
+- Requires: PROJ-4 (Maschinen Bibliothek) — Canvas-Objekte sind die Knoten des Flussgraphen
+- ~~Requires: PROJ-5 (Quellen & Senken)~~ — **entfällt, PROJ-5 cancelled.** Alle Canvas-Objekte sind gleichwertige Stationen; jedes Objekt kann Start- oder Endpunkt eines Flusses sein.
 
 ## User Stories
-- As a consultant, I want to define a material flow between two stations (machine, source, or sink) so that I can model the production process.
+- As a consultant, I want to define a material flow between any two stations on the canvas so that I can model the production process.
 - As a consultant, I want to specify the transport quantity per flow (units/hour or units/day) so that the intensity of the flow is captured.
 - As a consultant, I want to specify the transport frequency (trips/day) so that I can differentiate between high and low frequency flows.
 - As a consultant, I want to see all defined flows in a list so that I can review and edit them.
@@ -18,7 +18,7 @@
 ## Acceptance Criteria
 - [ ] Flüsse werden in einer separaten "Materialfluss" Tabelle/Panel verwaltet (nicht direkt auf Canvas gezeichnet)
 - [ ] Neuen Fluss erstellen: Von (Pflicht), Nach (Pflicht), Menge pro Transport in Einheiten (Pflicht), Transporte pro Tag (Pflicht), Material-Bezeichnung (optional)
-- [ ] "Von" und "Nach" sind Dropdowns mit allen Canvas-Objekten (Maschinen, Quellen, Senken)
+- [ ] "Von" und "Nach" sind Dropdowns mit allen Canvas-Objekten (alle Stationen/Typen gleichwertig)
 - [ ] Ein Fluss kann nicht von einem Objekt zu sich selbst gehen → Validierungsfehler
 - [ ] Alle definierten Flüsse werden in einer übersichtlichen Tabelle angezeigt (Von → Nach, Menge, Frequenz)
 - [ ] Flüsse können bearbeitet werden (alle Felder editierbar)

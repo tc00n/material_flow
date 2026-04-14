@@ -29,7 +29,7 @@
 
 ## Edge Cases
 - Was passiert, wenn keine Flüsse definiert sind? → KPI-Panel zeigt "Keine Daten — bitte Materialflüsse definieren"
-- Was passiert, wenn Quelle und Senke direkt übereinander liegen (Distanz = 0)? → Distanz wird als 0 angezeigt, kein Crash
+- Was passiert, wenn zwei Objekte direkt übereinander liegen (Distanz = 0)? → Distanz wird als 0 angezeigt, kein Crash
 - Was passiert, wenn der Kostensatz auf 0 gesetzt wird? → Transportkosten = 0 €/Tag, kein Fehler
 
 ## Technical Requirements

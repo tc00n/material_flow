@@ -18,7 +18,8 @@
 - [ ] "Layout optimieren" Button ist im UI sichtbar (z.B. in der Toolbar oder KPI-Panel)
 - [ ] Optimierung startet mit Loading-Indikator ("Optimierung läuft...")
 - [ ] Optimierungsalgorithmus minimiert Gesamttransportdistanz (quantity × frequency × distance)
-- [ ] Maschinen/Stationen werden repositioniert, Quellen und Senken bleiben fix (ihre Position ist vorgegeben durch die Fabrikhalle)
+- [ ] Vor dem Start: Dialog "Welche Objekte sollen fixiert bleiben?" — Berater wählt per Checkbox aus allen Canvas-Objekten (z.B. Wareneingang, Außenlager an der Wand)
+- [ ] Fixierte Objekte werden nicht verschoben; alle anderen werden repositioniert
 - [ ] Nach Abschluss wird eine Vorschau des optimierten Layouts angezeigt
 - [ ] Verbesserung wird angezeigt: "Transportdistanz: 1.240m/Tag → 780m/Tag (−37%)"
 - [ ] Nutzer kann "Übernehmen" oder "Verwerfen" klicken
@@ -39,7 +40,7 @@
   - Alternativen: Greedy-Swap (schneller, schlechtere Qualität) als Fallback
 - Läuft client-seitig (Web Worker um UI nicht zu blockieren)
 - Einschränkungen: Objekte können nicht außerhalb der Canvas-Grenzen platziert werden
-- Quellen und Senken werden nicht verschoben (sind fix)
+- Fixierte Objekte: User-definiert per Checkbox-Dialog vor dem Start (kein implizites source/sink-Konzept mehr — PROJ-5 cancelled)
 - Kollisionsvermeidung: Objekte dürfen sich nicht überlappen (wird als Constraint behandelt)
 
 ---
