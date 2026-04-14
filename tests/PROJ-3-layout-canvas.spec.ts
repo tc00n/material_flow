@@ -17,12 +17,8 @@ import { test, expect } from '@playwright/test'
 
 // ---------------------------------------------------------------------------
 // Security: unauthenticated users cannot access the canvas route
-// NOTE: These tests require NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
-// to be configured in .env.local. Without Supabase, the server throws 500 before
-// reaching the redirect. Skipped when env vars are absent.
 // ---------------------------------------------------------------------------
 test('Canvas route redirects unauthenticated users to /login', async ({ page }) => {
-  test.skip(true, 'Requires Supabase env vars configured in .env.local')
   await page.context().clearCookies()
   await page.goto('/projects/test-project-id/canvas')
   await expect(page).toHaveURL(/\/login/)
@@ -32,7 +28,6 @@ test('Canvas route redirects unauthenticated users to /login', async ({ page }) 
 // Security: canvas route with random UUID redirects unauthenticated to /login
 // ---------------------------------------------------------------------------
 test('Canvas route with UUID-shaped path redirects to /login if not authenticated', async ({ page }) => {
-  test.skip(true, 'Requires Supabase env vars configured in .env.local')
   await page.context().clearCookies()
   const fakeId = '00000000-0000-0000-0000-000000000001'
   await page.goto(`/projects/${fakeId}/canvas`)
@@ -242,10 +237,9 @@ test('Overlap warning message renders in properties panel when hasOverlap is tru
 })
 
 // ---------------------------------------------------------------------------
-// Responsive: canvas route exists on mobile viewport (redirect handled by auth guard)
+// Responsive: canvas route redirects on mobile viewport (375px)
 // ---------------------------------------------------------------------------
-test('Canvas route exists on mobile viewport (375px) — not a 404', async ({ page, request }) => {
-  test.skip(true, 'Requires Supabase env vars configured in .env.local')
+test('Canvas route redirects unauthenticated users to /login on mobile (375px)', async ({ page }) => {
   await page.context().clearCookies()
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/projects/test-id/canvas')
