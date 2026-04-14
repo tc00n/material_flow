@@ -1,6 +1,6 @@
 # PROJ-3: Layout Canvas (Drag & Drop)
 
-## Status: In Review
+## Status: Approved
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-14
 
@@ -262,7 +262,7 @@ Tables created by `/backend` on 2026-04-14 — canvas can now persist data to Su
 
 ### Production-Ready Decision
 
-**NOT READY** — 1 High security bug (Bug #3) must be addressed before deployment. Medium bugs (AC-5 boundary clamping and AC-2 configurability) should be prioritized for the next sprint.
+**READY** — Bug #3 (High security) fixed on 2026-04-14. Remaining bugs (Bug #1, #2, #4) are Medium/Low and deferred to a future sprint.
 
 ## Deployment
 _To be added by /deploy_

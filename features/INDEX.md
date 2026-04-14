@@ -16,7 +16,7 @@
 |----|---------|--------|------|---------|
 | PROJ-1 | User Authentication (Login/Logout) | Deployed | [spec](PROJ-1-user-authentication.md) | 2026-04-14 |
 | PROJ-2 | Projekt-Dashboard (Projekte verwalten) | Deployed | [spec](PROJ-2-projekt-dashboard.md) | 2026-04-14 |
-| PROJ-3 | Layout Canvas (Drag & Drop) | In Review | [spec](PROJ-3-layout-canvas.md) | 2026-04-14 |
+| PROJ-3 | Layout Canvas (Drag & Drop) | Approved | [spec](PROJ-3-layout-canvas.md) | 2026-04-14 |
 | PROJ-4 | Maschinen & Anlagen Bibliothek | Planned | [spec](PROJ-4-maschinen-bibliothek.md) | 2026-04-14 |
 | PROJ-5 | Quellen & Senken Definition | Planned | [spec](PROJ-5-quellen-senken.md) | 2026-04-14 |
 | PROJ-6 | Materialfluss-Definition | Planned | [spec](PROJ-6-materialfluss-definition.md) | 2026-04-14 |
