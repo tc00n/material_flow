@@ -1,6 +1,6 @@
 # PROJ-13: Materialfluss Excel Import/Export
 
-## Status: Architected
+## Status: Approved
 **Created:** 2026-04-16
 **Last Updated:** 2026-04-16
 
@@ -120,8 +120,95 @@ Fixed column structure (headers matched case-insensitively):
 ### Dependencies
 - **`xlsx`** (SheetJS) — read/write `.xlsx` in the browser. `npm install xlsx`
 
+## Implementation Notes
+
+### Files Changed
+- **`src/lib/excel-flows.ts`** (new) — Pure client-side utilities: `exportFlowsToXlsx`, `downloadTemplate`, `parseFlowsFromXlsx`. SheetJS handles all Excel parsing/generation in the browser.
+- **`src/components/canvas/import-flows-dialog.tsx`** (new) — Multi-step dialog: upload → preview+validation → mode selection → confirm. Uses drag-and-drop file zone.
+- **`src/components/canvas/material-flow-panel.tsx`** (modified) — Added `projectName` prop + 3 header buttons (Vorlage / Export / Import). Added `handleImportConfirm` handler (replace = delete all then insert, append = insert only).
+- **`src/components/canvas/canvas-client.tsx`** (modified) — Passes `projectName` prop down to `MaterialFlowPanel`.
+
+### Deviations from Tech Design
+None. Implementation matches the architecture spec exactly.
+
+### Dependencies Added
+- `xlsx` (SheetJS) — client-side Excel read/write
+
 ## QA Test Results
-_To be added by /qa_
+
+**QA Date:** 2026-04-16
+**QA Engineer:** /qa skill
+**Status:** APPROVED — no critical or high bugs found
+
+### Acceptance Criteria Results
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | Export-Button in der Materialfluss-Tab verfügbar | ✅ PASS |
+| 2 | Export erzeugt `.xlsx`-Datei mit korrekten Spalten | ✅ PASS |
+| 3 | Alle aktuellen Flüsse werden exportiert | ✅ PASS |
+| 4 | Dateiname: `materialfluss-[projektname]-[datum].xlsx` | ✅ PASS |
+| 5 | Import-Button in der Materialfluss-Tab verfügbar | ✅ PASS |
+| 6 | Import akzeptiert `.xlsx`-Dateien | ✅ PASS |
+| 7 | Vorschau vor Import: Anzahl Zeilen + erste 5 Zeilen | ✅ PASS |
+| 8 | Import-Modus Auswahl: Ersetzen / Hinzufügen | ✅ PASS |
+| 9 | Import validiert Stationen und numerische Felder | ✅ PASS |
+| 10 | Ungültige Zeilen übersprungen mit Fehlerliste | ✅ PASS |
+| 11 | Template-Download-Button vorhanden | ✅ PASS |
+| 12 | Flusstabelle nach Import sofort aktualisiert | ✅ PASS |
+
+### Edge Cases
+
+| Edge Case | Result |
+|-----------|--------|
+| Nicht-.xlsx Datei → Fehlermeldung | ✅ PASS |
+| Falsche Spaltenüberschriften → Fehlermeldung | ✅ PASS |
+| Alle Zeilen ungültig → Import abgebrochen, Confirm-Button ausgeblendet | ✅ PASS |
+| Keine Canvas-Stationen → Warnung angezeigt | ✅ PASS |
+| Roundtrip (export → re-import) | ✅ PASS (via unit tests) |
+| Leere Datei (nur Header) → "Keine Daten" Fehler | ✅ PASS |
+| > 5 gültige Zeilen → "erste 5 von N" Hinweis | ✅ PASS |
+
+### Security Audit
+
+| Check | Result |
+|-------|--------|
+| Unauthenticated canvas access blocked | ✅ PASS — redirects to /login |
+| Excel parsing entirely client-side (no file upload to server) | ✅ PASS — SheetJS reads ArrayBuffer in browser |
+| No station IDs exposed in Excel export (labels only) | ✅ PASS — only `from_label`, `to_label`, `quantity`, `frequency`, `material` exported |
+| Import creates flows via existing server actions with layout auth | ✅ PASS — `createMaterialFlow` / `deleteMaterialFlow` use authenticated Supabase client |
+| XSS via station labels in error messages | ✅ PASS — React renders all strings as text nodes |
+
+### Bugs Found
+
+None. No critical, high, medium, or low bugs found.
+
+### Automated Tests Written
+
+**Unit tests** (`src/lib/excel-flows.test.ts`): 19 tests covering `parseFlowsFromXlsx`:
+- Happy path (single row, multiple rows, null material, empty-row skipping)
+- Case-insensitive header matching (upper, lower, mixed)
+- Fatal errors (bad headers, empty file, header-only file)
+- Row-level validation (unknown stations, zero/negative values, non-numeric input, empty Von/Nach)
+- Mixed valid+invalid rows
+
+**E2E tests** (`tests/PROJ-13-materialfluss-excel-import-export.spec.ts`): 21 tests / 42 runs (Chromium + Mobile Safari):
+- Security: unauthenticated redirect
+- Header buttons: Vorlage, Export, Import all visible
+- Import dialog: drop zone, file input, Abbrechen button
+- Error states: non-.xlsx, no-stations warning, empty file, wrong headers
+- Preview step: badges, table columns, error list, back button, "first 5 of N" hint
+- Mode selection: Hinzufügen / Ersetzen radios
+- Confirm button: correct count + singular/plural form
+- Confirm hidden when 0 valid rows
+- Export filename format regex
+- Template button label + title attribute
+- Regression: auth redirect, login page
+
+### Regression Check
+
+- 307/308 existing E2E tests pass (1 pre-existing Mobile Safari PROJ-1 failure unrelated to PROJ-13)
+- 173/173 unit tests pass (up from 154)
 
 ## Deployment
 _To be added by /deploy_
