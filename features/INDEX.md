@@ -28,6 +28,6 @@
 | PROJ-11 | Export & Report (PDF) | Planned | [spec](PROJ-11-export-report.md) | 2026-04-14 |
 | PROJ-12 | Collaboration (Mehrere Nutzer) | Planned | [spec](PROJ-12-collaboration.md) | 2026-04-14 |
 | PROJ-13 | Materialfluss Excel Import/Export | Architected | [spec](PROJ-13-materialfluss-excel-import-export.md) | 2026-04-16 |
-| PROJ-14 | Grid-Snap auf 0,5 m | Planned | [spec](PROJ-14-grid-snap-halber-meter.md) | 2026-04-16 |
+| PROJ-14 | Grid-Snap auf 0,5 m | Architected | [spec](PROJ-14-grid-snap-halber-meter.md) | 2026-04-16 |
 
 ## Next Available ID: PROJ-15
