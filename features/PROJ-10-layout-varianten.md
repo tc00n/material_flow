@@ -1,6 +1,6 @@
 # PROJ-10: Layout-Varianten Vergleich
 
-## Status: In Progress
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-16
 
@@ -182,4 +182,7 @@ None — all libraries already installed.
 **READY** — All 4 bugs fixed (2026-04-16). No Critical or High bugs remain.
 
 ## Deployment
-_To be added by /deploy_
+**Deployed:** 2026-04-16
+**Production URL:** https://material-flow.vercel.app
+**Git Tag:** v1.10.0-PROJ-10
+**Commit:** 64d1d86 — feat(PROJ-10): Implement Layout-Varianten Vergleich
