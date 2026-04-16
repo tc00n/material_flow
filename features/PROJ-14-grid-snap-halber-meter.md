@@ -1,6 +1,6 @@
 # PROJ-14: Grid-Snap auf 0,5 m
 
-## Status: Architected
+## Status: Approved
 **Created:** 2026-04-16
 **Last Updated:** 2026-04-16
 
@@ -72,8 +72,74 @@ No schema change needed. `pos_x`, `pos_y`, `width`, `height` are already `NUMERI
 ### Dependencies
 None.
 
+## Implementation Notes
+- Added `SNAP_SIZE = CELL_SIZE / 2 = 30` constant in `canvas-client.tsx`
+- Changed `snapGrid` prop from `[60, 60]` to `[30, 30]` — React Flow now snaps drag at 0.5m resolution
+- Drop handler snap: `Math.round(x / SNAP_SIZE) * SNAP_SIZE` — new items from sidebar also snap at 0.5m
+- Save formula: `Math.round(x / SNAP_SIZE) * 0.5` — stores 0.5m precision values (e.g. 3.5 instead of 3)
+- `machine-type-dialog.tsx` already had `step={0.5}` and `min={0.5}` — no change needed
+- No database changes needed; `pos_x`/`pos_y` are already `NUMERIC` in Supabase
+- Background grid gap stays at 60px (1m main lines) — unchanged
+- Existing integer positions remain valid (e.g. `pos_x = 3` is `3.0 m`, a valid 0.5m position)
+
 ## QA Test Results
-_To be added by /qa_
+
+**Tested:** 2026-04-16
+**App URL:** http://localhost:3000
+**Tester:** QA Engineer (AI)
+
+### Acceptance Criteria Status
+
+#### AC-1: Snap-Raster beträgt 0,5 m — Objekte rasten in 0,5-m-Schritten ein
+- [x] `SNAP_SIZE = CELL_SIZE / 2 = 30` constant added to `canvas-client.tsx`
+- [x] `snapGrid={[SNAP_SIZE, SNAP_SIZE]}` (= [30, 30]) set on ReactFlow component
+- [x] Drop handler from sidebar uses `Math.round(rawPosition.x / SNAP_SIZE) * SNAP_SIZE`
+- [x] Save formula: `Math.round(n.position.x / SNAP_SIZE) * 0.5` → stores 0.5m precision values
+- [x] Unit tests confirm formula produces 0.0, 0.5, 1.0, 1.5 ... values correctly (29 tests)
+- [x] E2E source-code verification confirms all three change locations are correct
+
+#### AC-2: Maschinengröße in 0,5-m-Schritten einstellbar
+- [x] `machine-type-dialog.tsx` already had `step={0.5}` and `min={0.5}` — no change needed (confirmed by E2E test)
+
+#### AC-3: Bestehende Layouts bleiben korrekt positioniert — kein Positions-Drift
+- [x] Integer-meter positions (e.g. `pos_x = 3` → 180 px) produce exactly `3.0 m` via the new formula — verified by unit tests
+- [x] All integer meter values (1 m through 10 m) round-trip correctly with zero drift
+- [x] No database migration added — `pos_x`/`pos_y` are already `NUMERIC` in Supabase
+
+#### AC-4: Visuelle Grid-Anzeige zeigt weiterhin 1-m-Hauptlinien
+- [x] `Background gap={CELL_SIZE}` (60 px = 1 m) unchanged — confirmed by E2E source test
+- [x] `CELL_SIZE = 60` constant unchanged
+
+### Edge Cases Status
+
+#### EC-1: Bestehende Canvas-Objekte nach dem Update
+- [x] Integer pos_x/pos_y values are valid 0.5m positions (e.g. `3` = `3.0 m`) — no drift, verified by unit tests
+
+#### EC-2: Objekt bei 0,5 m in altem Stand
+- [x] No issue — `pos_x`/`pos_y` are already `NUMERIC` in DB, decimal values have always been storable
+
+#### EC-3: Sehr kleine Maschinen (0,5 m × 0,5 m)
+- [x] No issue — `machine-type-dialog.tsx` has `min={0.5}` and `step={0.5}`, no change needed
+
+### Security Audit Results
+- [x] Authentication: Canvas route still redirects unauthenticated users to `/login` (regression test passes)
+- [x] Authorization: No changes to auth or ownership checks — PROJ-3 security fix unaffected
+- [x] Input validation: No new user inputs introduced by this change
+- [x] No secrets or schema exposed: Source-level change only (constants + formulas)
+
+### Bugs Found
+
+_No bugs found._
+
+### Summary
+- **Acceptance Criteria:** 4/4 passed
+- **Edge Cases:** 3/3 passed
+- **Security:** Pass — no regressions
+- **Unit Tests:** 29 new tests added (`src/components/canvas/snap-math.test.ts`) — all pass
+- **E2E Tests:** 10 new tests added (`tests/PROJ-14-grid-snap-halber-meter.spec.ts`) — all pass
+- **Total Test Suite:** 154 unit tests + all E2E tests pass
+- **Production Ready:** YES
+- **Recommendation:** Deploy
 
 ## Deployment
 _To be added by /deploy_
