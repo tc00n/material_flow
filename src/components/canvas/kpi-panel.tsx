@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, TrendingUp, Route, Euro, BarChart3 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, TrendingUp, Route, Euro, BarChart3, Zap } from 'lucide-react'
 import { Node } from '@xyflow/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { MaterialFlowWithLabels } from '@/app/actions/material-flows'
 import { CanvasLayout, updateLayoutSettings } from '@/app/actions/canvas'
 import { useKpiCalculation } from '@/hooks/use-kpi-calculation'
@@ -18,9 +19,12 @@ type Props = {
   flows: MaterialFlowWithLabels[]
   layout: CanvasLayout
   onSettingsChange: (cost_per_meter: number, meters_per_cell: number) => void
+  onOptimize: () => void
+  canOptimize: boolean
+  isOptimizing: boolean
 }
 
-export function KpiPanel({ nodes, flows, layout, onSettingsChange }: Props) {
+export function KpiPanel({ nodes, flows, layout, onSettingsChange, onOptimize, canOptimize, isOptimizing }: Props) {
   const [open, setOpen] = useState(true)
   const [costPerMeter, setCostPerMeter] = useState(layout.cost_per_meter)
   const [metersPerCell, setMetersPerCell] = useState(layout.meters_per_cell)
@@ -156,6 +160,26 @@ export function KpiPanel({ nodes, flows, layout, onSettingsChange }: Props) {
                 </div>
               </div>
             </div>
+
+            <Separator />
+
+            {/* Optimize button */}
+            <Button
+              className="w-full gap-2"
+              size="sm"
+              onClick={onOptimize}
+              disabled={!canOptimize || isOptimizing}
+              title={
+                !hasFlows
+                  ? 'Bitte zuerst Materialflüsse definieren'
+                  : nodes.length < 2
+                  ? 'Mindestens 2 Stationen erforderlich'
+                  : undefined
+              }
+            >
+              <Zap className="h-3.5 w-3.5" />
+              {isOptimizing ? 'Optimierung läuft…' : 'Layout optimieren'}
+            </Button>
           </div>
         </CollapsibleContent>
       </Collapsible>

@@ -26,8 +26,11 @@ import { MachineSidebar, SidebarItem } from '@/components/canvas/machine-sidebar
 import { PropertiesPanel } from '@/components/canvas/properties-panel'
 import { SpaghettiOverlay } from '@/components/canvas/spaghetti-overlay'
 import { KpiPanel } from '@/components/canvas/kpi-panel'
+import { FixedObjectsDialog } from '@/components/canvas/fixed-objects-dialog'
+import { OptimizationResultPanel } from '@/components/canvas/optimization-result-panel'
 import { Button } from '@/components/ui/button'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useOptimizer } from '@/hooks/use-optimizer'
 
 // 1 grid unit = CELL_SIZE pixels at 100% zoom
 const CELL_SIZE = 60
@@ -112,7 +115,7 @@ type CanvasFlowProps = {
 }
 
 function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMachineTypes }: CanvasFlowProps) {
-  const { screenToFlowPosition, zoomIn, zoomOut } = useReactFlow()
+  const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow()
   const viewport = useViewport()
   const { zoom } = viewport
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
@@ -129,6 +132,11 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
     cost_per_meter: layout.cost_per_meter,
     meters_per_cell: layout.meters_per_cell,
   })
+
+  // Optimization state
+  const [showFixedDialog, setShowFixedDialog] = useState(false)
+  const [preOptimizeNodes, setPreOptimizeNodes] = useState<Node[] | null>(null)
+  const { isRunning: isOptimizing, result: optimizationResult, run: runOptimizer, reset: resetOptimizer } = useOptimizer()
 
   const selectedNode = selectedNodeId ? nodes.find((n) => n.id === selectedNodeId) : null
 
@@ -270,6 +278,63 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
     })
   }
 
+  // Apply preview positions when optimizer finishes
+  useEffect(() => {
+    if (!optimizationResult) return
+    setNodes((nds) =>
+      applyOverlapFlags(
+        nds.map((n) => {
+          const pos = optimizationResult.positions[n.id]
+          if (!pos) return n
+          return {
+            ...n,
+            position: { x: pos.pos_x * CELL_SIZE, y: pos.pos_y * CELL_SIZE },
+          }
+        })
+      )
+    )
+    setTimeout(() => fitView({ padding: 0.2, duration: 400 }), 50)
+  }, [optimizationResult]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Accept optimized layout: save to DB
+  async function handleAcceptOptimization() {
+    setNodes((nds) => {
+      const withFlags = applyOverlapFlags(nds)
+      performSave(withFlags)
+      return withFlags
+    })
+    setPreOptimizeNodes(null)
+    resetOptimizer()
+  }
+
+  // Discard: restore original nodes
+  function handleDiscardOptimization() {
+    if (preOptimizeNodes) {
+      setNodes(preOptimizeNodes)
+    }
+    setPreOptimizeNodes(null)
+    resetOptimizer()
+  }
+
+  // Open fixed-objects dialog
+  function handleOpenOptimize() {
+    setShowFixedDialog(true)
+  }
+
+  // Start optimizer after user selects fixed objects
+  function handleOptimizeConfirm(fixedIds: string[]) {
+    setShowFixedDialog(false)
+    setPreOptimizeNodes(nodes)
+    runOptimizer({
+      nodes,
+      fixedIds,
+      flows,
+      canvasWidth: layout.canvas_width,
+      canvasHeight: layout.canvas_height,
+      metersPerCell: kpiSettings.meters_per_cell,
+    })
+  }
+
   // When a machine type is updated, sync all canvas nodes linked to it
   function handleTypeUpdated(type: MachineType) {
     setNodes((nds) => {
@@ -321,6 +386,13 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
+      <FixedObjectsDialog
+        open={showFixedDialog}
+        onOpenChange={setShowFixedDialog}
+        nodes={nodes}
+        onConfirm={handleOptimizeConfirm}
+      />
+
       <CanvasHeader
         projectId={projectId}
         projectName={projectName}
@@ -413,15 +485,33 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
                 Für optimale Nutzung Desktop-Browser verwenden
               </div>
             </div>
+
+            {/* Loading overlay while optimizer runs */}
+            {isOptimizing && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+                <div className="flex flex-col items-center gap-3 rounded-xl border bg-background px-8 py-6 shadow-lg">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <p className="text-sm font-medium">Optimierung läuft…</p>
+                  <p className="text-xs text-muted-foreground">Simulated Annealing</p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {selectedNode ? (
+          {selectedNode && !optimizationResult ? (
             <PropertiesPanel
               nodeId={selectedNode.id}
               data={selectedNode.data as MachineNodeData}
               onClose={() => setSelectedNodeId(null)}
               onDelete={handleDelete}
               onLabelChange={handleLabelChange}
+            />
+          ) : optimizationResult ? (
+            <OptimizationResultPanel
+              scoreBefore={optimizationResult.scoreBefore}
+              scoreAfter={optimizationResult.scoreAfter}
+              onAccept={handleAcceptOptimization}
+              onDiscard={handleDiscardOptimization}
             />
           ) : (
             <KpiPanel
@@ -431,6 +521,9 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
               onSettingsChange={(cost_per_meter, meters_per_cell) =>
                 setKpiSettings({ cost_per_meter, meters_per_cell })
               }
+              onOptimize={handleOpenOptimize}
+              canOptimize={nodes.length >= 2 && flows.length > 0}
+              isOptimizing={isOptimizing}
             />
           )}
         </div>
