@@ -1,6 +1,6 @@
 # PROJ-13: Materialfluss Excel Import/Export
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-16
 **Last Updated:** 2026-04-16
 
@@ -211,4 +211,8 @@ None. No critical, high, medium, or low bugs found.
 - 173/173 unit tests pass (up from 154)
 
 ## Deployment
-_To be added by /deploy_
+
+**Deployed:** 2026-04-16
+**Production URL:** https://material-flow-lyart.vercel.app
+**Git Tag:** v1.13.0-PROJ-13
+**Commit:** 0abc87b feat(PROJ-13): Implement Materialfluss Excel Import/Export

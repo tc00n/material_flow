@@ -1,6 +1,6 @@
 # PROJ-14: Grid-Snap auf 0,5 m
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-16
 **Last Updated:** 2026-04-16
 
@@ -142,4 +142,8 @@ _No bugs found._
 - **Recommendation:** Deploy
 
 ## Deployment
-_To be added by /deploy_
+
+**Deployed:** 2026-04-16
+**Production URL:** https://material-flow-lyart.vercel.app
+**Git Tag:** v1.14.0-PROJ-14
+**Commit:** 0abc87b feat(PROJ-13): Implement Materialfluss Excel Import/Export (canvas-client.tsx PROJ-14 changes bundled in this commit)
