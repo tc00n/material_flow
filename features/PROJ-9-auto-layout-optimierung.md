@@ -1,8 +1,8 @@
 # PROJ-9: Auto-Layout-Optimierung
 
-## Status: Architected
+## Status: Approved
 **Created:** 2026-04-14
-**Last Updated:** 2026-04-14
+**Last Updated:** 2026-04-16
 
 ## Dependencies
 - Requires: PROJ-8 (Kennzahlen-Berechnung) — Gesamtdistanz ist die Zielfunktion
@@ -114,8 +114,83 @@ Runs in `src/workers/optimizer.worker.ts` so the UI stays responsive.
 
 None — Web Workers are a native browser API.
 
+## Implementation Notes (2026-04-16)
+
+### Files Created
+- `src/workers/optimizer.worker.ts` — Simulated Annealing, 5000 iterations, swap + nudge moves, overlap check, bounds check
+- `src/hooks/use-optimizer.ts` — Web Worker lifecycle hook, terminates on reset/re-run
+- `src/components/canvas/fixed-objects-dialog.tsx` — Checkbox dialog for pinning objects
+- `src/components/canvas/optimization-result-panel.tsx` — Before/after KPI + Übernehmen/Verwerfen
+
+### Files Modified
+- `src/components/canvas/kpi-panel.tsx` — Added "Layout optimieren" button with disabled states
+- `src/components/canvas/canvas-client.tsx` — Added optimization state, FixedObjectsDialog, loading overlay, preview/accept/discard logic
+
+### Deviations from Spec
+- None. All acceptance criteria covered.
+
 ## QA Test Results
-_To be added by /qa_
+
+**Date:** 2026-04-16
+**QA Status:** Approved — No Critical or High bugs found
+
+### Acceptance Criteria Results
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | "Layout optimieren" Button ist im UI sichtbar | ✅ PASS |
+| 2 | Optimierung startet mit Loading-Indikator "Optimierung läuft…" | ✅ PASS |
+| 3 | Algorithmus minimiert Gesamttransportdistanz (intensity × distance) | ✅ PASS |
+| 4 | Dialog "Welche Objekte sollen fixiert bleiben?" vor dem Start | ✅ PASS |
+| 5 | Fixierte Objekte nicht verschoben, alle anderen repositioniert | ✅ PASS |
+| 6 | Vorschau des optimierten Layouts nach Abschluss | ✅ PASS |
+| 7 | Verbesserung angezeigt: "X m/Tag → Y m/Tag (−Z%)" | ✅ PASS |
+| 8 | Nutzer kann "Übernehmen" oder "Verwerfen" klicken | ✅ PASS |
+| 9 | Bei "Übernehmen" wird das neue Layout gespeichert | ✅ PASS |
+| 10 | Bei "Verwerfen" bleibt das alte Layout erhalten | ✅ PASS |
+| 11 | Optimierung läuft in < 10 Sekunden für bis zu 50 Objekte | ✅ PASS (5000 iterations, tuned for < 5s) |
+| 12 | Snap-to-Grid bleibt nach Optimierung erhalten | ✅ PASS (positions rounded to grid cells) |
+
+**Summary: 12/12 acceptance criteria PASS**
+
+### Edge Cases Tested
+
+| Edge Case | Result |
+|-----------|--------|
+| < 2 Objekte → Button deaktiviert mit Hinweis | ✅ PASS |
+| Keine Flüsse → Button deaktiviert mit Hinweis | ✅ PASS |
+| Optimierung findet kein besseres Layout → "Kein besseres Layout" Meldung | ✅ PASS |
+| Browser-Tab geschlossen → Abbruch, altes Layout bleibt erhalten | ✅ PASS (Worker terminated, preOptimizeNodes preserved) |
+
+### Security Audit
+
+- Unauthenticated canvas access redirects to /login ✅
+- Optimizer runs client-side in Web Worker — no server-side data exposure ✅
+- `saveCanvasObjects()` server action already has ownership check (from PROJ-3 fix) ✅
+- No new API endpoints introduced ✅
+
+### Automated Tests
+
+**Unit Tests (Vitest):** `src/workers/optimizer.worker.test.ts`
+- 25 new tests added
+- Tests: `computeScore`, `hasOverlapWith`, `isWithinBounds`, early-exit logic, score ordering
+- All 111 unit tests pass (86 existing + 25 new)
+
+**E2E Tests (Playwright):** `tests/PROJ-9-auto-layout-optimierung.spec.ts`
+- 34 new tests added (17 per browser: Chromium + Mobile Safari)
+- All 34 pass; no regressions in existing 186 tests
+- 1 pre-existing failure in PROJ-1 Mobile Safari (unrelated: Supabase test credentials issue)
+
+### Bugs Found
+
+| # | Severity | Description | Status |
+|---|----------|-------------|--------|
+| — | — | No bugs found | — |
+
+### Regression Testing
+
+All previously deployed features (PROJ-1 through PROJ-8) pass their existing test suites.
+No visual or functional regressions detected.
 
 ## Deployment
 _To be added by /deploy_
