@@ -1,6 +1,6 @@
 # PROJ-9: Auto-Layout-Optimierung
 
-## Status: Approved
+## Status: Deployed
 **Created:** 2026-04-14
 **Last Updated:** 2026-04-16
 
@@ -193,4 +193,8 @@ All previously deployed features (PROJ-1 through PROJ-8) pass their existing tes
 No visual or functional regressions detected.
 
 ## Deployment
-_To be added by /deploy_
+
+**Deployed:** 2026-04-16
+**Production URL:** https://material-flow-lyart.vercel.app
+**Vercel Deployment:** https://material-flow-3td2df3ie-tc00ns-projects.vercel.app
+**Git Tag:** v1.9.0-PROJ-9
