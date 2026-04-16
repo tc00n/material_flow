@@ -14,7 +14,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Image src="/logo.svg" alt="NEONEX" width={100} height={28} priority />
+          <Image src="/logo.svg" alt="NEONEX" width={100} height={17} style={{ height: 'auto' }} priority />
           <form action={logout}>
             <Button variant="ghost" size="sm" type="submit">
               <LogOut className="mr-2 h-4 w-4" />

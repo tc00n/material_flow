@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
 export type SaveStatus = 'saved' | 'saving' | 'unsaved' | 'error'
-export type CanvasTab = 'canvas' | 'materialfluss'
+export type CanvasTab = 'canvas' | 'materialfluss' | 'vergleich'
 
 type Props = {
   projectId: string
@@ -54,7 +54,7 @@ export function CanvasHeader({ projectId, projectName, saveStatus, zoom, onZoomI
       {/* Left: logo + breadcrumb */}
       <div className="flex items-center gap-3">
         <Link href="/">
-          <Image src="/logo.svg" alt="NEONEX" width={80} height={22} priority />
+          <Image src="/logo.svg" alt="NEONEX" width={80} height={14} style={{ height: 'auto' }} priority />
         </Link>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
         <Link
@@ -84,6 +84,14 @@ export function CanvasHeader({ projectId, projectName, saveStatus, zoom, onZoomI
           onClick={() => onTabChange('materialfluss')}
         >
           Materialfluss
+        </Button>
+        <Button
+          variant={activeTab === 'vergleich' ? 'secondary' : 'ghost'}
+          size="sm"
+          className="h-7 px-3 text-xs rounded-sm"
+          onClick={() => onTabChange('vergleich')}
+        >
+          Vergleich
         </Button>
       </div>
 

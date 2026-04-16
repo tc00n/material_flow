@@ -1,15 +1,17 @@
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import { getOrCreateCanvasLayout } from '@/app/actions/canvas'
+import { getOrCreateCanvasLayout, getVariants } from '@/app/actions/canvas'
 import { getMachineTypes } from '@/app/actions/machine-types'
 import { CanvasClient } from '@/components/canvas/canvas-client'
 
 type Props = {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ variant?: string }>
 }
 
-export default async function CanvasPage({ params }: Props) {
+export default async function CanvasPage({ params, searchParams }: Props) {
   const { id: projectId } = await params
+  const { variant: variantId } = await searchParams
 
   const supabase = await createClient()
 
@@ -29,8 +31,11 @@ export default async function CanvasPage({ params }: Props) {
 
   if (projectError || !project) notFound()
 
-  // Get or create canvas layout + objects
-  const canvasData = await getOrCreateCanvasLayout(projectId)
+  // Load all variants + active variant's canvas data
+  const [variants, canvasData] = await Promise.all([
+    getVariants(projectId),
+    getOrCreateCanvasLayout(projectId, variantId),
+  ])
 
   if (!canvasData) {
     return (
@@ -50,6 +55,12 @@ export default async function CanvasPage({ params }: Props) {
     )
   }
 
+  // Ensure variants list always contains at least the active layout
+  const variantList =
+    variants.length > 0
+      ? variants
+      : [canvasData.layout]
+
   // Fetch machine types for this project
   const machineTypes = await getMachineTypes(projectId)
 
@@ -60,6 +71,7 @@ export default async function CanvasPage({ params }: Props) {
       layout={canvasData.layout}
       initialObjects={canvasData.objects}
       initialMachineTypes={machineTypes}
+      variants={variantList}
     />
   )
 }
