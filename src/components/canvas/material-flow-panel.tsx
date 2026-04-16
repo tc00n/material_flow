@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Plus, Pencil, Trash2, ArrowRight, Inbox } from 'lucide-react'
+import { Plus, Pencil, Trash2, ArrowRight, Inbox, Download, Upload, FileSpreadsheet } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import {
   getMaterialFlows,
@@ -32,13 +32,20 @@ import {
   MaterialFlowWithLabels,
 } from '@/app/actions/material-flows'
 import { FlowFormDialog, Station } from '@/components/canvas/flow-form-dialog'
+import { ImportFlowsDialog } from '@/components/canvas/import-flows-dialog'
+import {
+  exportFlowsToXlsx,
+  downloadTemplate,
+  ParsedFlowRow,
+} from '@/lib/excel-flows'
 
 type Props = {
   layoutId: string
   stations: Station[]
+  projectName: string
 }
 
-export function MaterialFlowPanel({ layoutId, stations }: Props) {
+export function MaterialFlowPanel({ layoutId, stations, projectName }: Props) {
   const { toast } = useToast()
 
   const [flows, setFlows] = useState<MaterialFlowWithLabels[]>([])
@@ -48,6 +55,7 @@ export function MaterialFlowPanel({ layoutId, stations }: Props) {
   const [editFlow, setEditFlow] = useState<MaterialFlowWithLabels | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<MaterialFlowWithLabels | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -108,24 +116,101 @@ export function MaterialFlowPanel({ layoutId, stations }: Props) {
     }
   }
 
+  function handleExport() {
+    if (flows.length === 0) {
+      toast({ title: 'Keine Flüsse zum Exportieren', variant: 'destructive' })
+      return
+    }
+    exportFlowsToXlsx(flows, projectName)
+    toast({ title: 'Export gestartet' })
+  }
+
+  async function handleImportConfirm(
+    rows: ParsedFlowRow[],
+    mode: 'append' | 'replace'
+  ) {
+    if (mode === 'replace') {
+      // Delete all existing flows first
+      for (const flow of flows) {
+        await deleteMaterialFlow(flow.id)
+      }
+    }
+
+    let created = 0
+    for (const row of rows) {
+      const fromStation = stations.find((s) => s.label === row.from_label)
+      const toStation = stations.find((s) => s.label === row.to_label)
+      if (!fromStation || !toStation) continue
+
+      const result = await createMaterialFlow({
+        canvas_layout_id: layoutId,
+        from_node_id: fromStation.id,
+        to_node_id: toStation.id,
+        quantity: row.quantity,
+        frequency: row.frequency,
+        material_name: row.material_name,
+      })
+      if (result.success) created++
+    }
+
+    toast({
+      title: `${created} Fluss${created !== 1 ? 'se' : ''} importiert`,
+      description: mode === 'replace' ? 'Bestehende Flüsse wurden ersetzt.' : undefined,
+    })
+    load()
+  }
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Panel header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
-        <div>
+      <div className="flex items-center justify-between px-6 py-4 border-b shrink-0 gap-2">
+        <div className="shrink-0">
           <h2 className="text-sm font-semibold">Materialflüsse</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
             Transportbeziehungen zwischen Stationen
           </p>
         </div>
-        <Button
-          size="sm"
-          onClick={() => setAddOpen(true)}
-          disabled={stations.length < 2}
-        >
-          <Plus className="h-4 w-4 mr-1.5" />
-          Neuen Fluss
-        </Button>
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 text-xs"
+            onClick={downloadTemplate}
+            title="Leere Vorlage herunterladen"
+          >
+            <FileSpreadsheet className="h-3.5 w-3.5 mr-1" />
+            Vorlage
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 text-xs"
+            onClick={handleExport}
+            disabled={flows.length === 0 || loading}
+            title="Flüsse als Excel exportieren"
+          >
+            <Download className="h-3.5 w-3.5 mr-1" />
+            Export
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 text-xs"
+            onClick={() => setImportOpen(true)}
+            title="Flüsse aus Excel importieren"
+          >
+            <Upload className="h-3.5 w-3.5 mr-1" />
+            Import
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setAddOpen(true)}
+            disabled={stations.length < 2}
+          >
+            <Plus className="h-4 w-4 mr-1.5" />
+            Neuen Fluss
+          </Button>
+        </div>
       </div>
 
       {/* No stations hint */}
@@ -232,6 +317,14 @@ export function MaterialFlowPanel({ layoutId, stations }: Props) {
         editFlow={editFlow}
         existingFlows={flows}
         onSave={handleUpdate}
+      />
+
+      {/* Import Dialog */}
+      <ImportFlowsDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        stations={stations}
+        onConfirm={handleImportConfirm}
       />
 
       {/* Delete Confirmation */}

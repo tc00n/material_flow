@@ -37,6 +37,8 @@ import { useOptimizer } from '@/hooks/use-optimizer'
 
 // 1 grid unit = CELL_SIZE pixels at 100% zoom
 const CELL_SIZE = 60
+// Snap resolution: 0.5 m = CELL_SIZE / 2 pixels
+const SNAP_SIZE = CELL_SIZE / 2
 
 const NODE_TYPES = { machineNode: MachineNode }
 
@@ -174,8 +176,8 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
           canvas_layout_id: layout.id,
           type: data.objectType,
           label: data.label,
-          pos_x: Math.round(n.position.x / CELL_SIZE),
-          pos_y: Math.round(n.position.y / CELL_SIZE),
+          pos_x: Math.round(n.position.x / SNAP_SIZE) * 0.5,
+          pos_y: Math.round(n.position.y / SNAP_SIZE) * 0.5,
           width: data.widthUnits,
           height: data.heightUnits,
           color: data.color ?? null,
@@ -225,8 +227,8 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
     const item: SidebarItem = JSON.parse(raw)
     const rawPosition = screenToFlowPosition({ x: e.clientX, y: e.clientY })
 
-    const snappedX = Math.round(rawPosition.x / CELL_SIZE) * CELL_SIZE
-    const snappedY = Math.round(rawPosition.y / CELL_SIZE) * CELL_SIZE
+    const snappedX = Math.round(rawPosition.x / SNAP_SIZE) * SNAP_SIZE
+    const snappedY = Math.round(rawPosition.y / SNAP_SIZE) * SNAP_SIZE
 
     const { x, y } = clampPosition(
       snappedX,
@@ -453,7 +455,7 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
               onNodeClick={(_, node) => setSelectedNodeId(node.id)}
               onPaneClick={() => setSelectedNodeId(null)}
               snapToGrid
-              snapGrid={[CELL_SIZE, CELL_SIZE]}
+              snapGrid={[SNAP_SIZE, SNAP_SIZE]}
               minZoom={0.25}
               maxZoom={2}
               fitView
@@ -554,7 +556,7 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
         </div>
       ) : (
         <div className="flex-1 min-h-0">
-          <MaterialFlowPanel layoutId={layout.id} stations={stations} />
+          <MaterialFlowPanel layoutId={layout.id} stations={stations} projectName={projectName} />
         </div>
       )}
     </div>
