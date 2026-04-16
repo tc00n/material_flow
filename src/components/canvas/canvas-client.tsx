@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -28,6 +29,8 @@ import { SpaghettiOverlay } from '@/components/canvas/spaghetti-overlay'
 import { KpiPanel } from '@/components/canvas/kpi-panel'
 import { FixedObjectsDialog } from '@/components/canvas/fixed-objects-dialog'
 import { OptimizationResultPanel } from '@/components/canvas/optimization-result-panel'
+import { VariantBar } from '@/components/canvas/variant-bar'
+import { KpiComparisonPanel } from '@/components/canvas/kpi-comparison-panel'
 import { Button } from '@/components/ui/button'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useOptimizer } from '@/hooks/use-optimizer'
@@ -112,13 +115,16 @@ type CanvasFlowProps = {
   layout: CanvasLayout
   initialObjects: CanvasObject[]
   initialMachineTypes: MachineType[]
+  variants: CanvasLayout[]
 }
 
-function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMachineTypes }: CanvasFlowProps) {
+function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMachineTypes, variants: initialVariants }: CanvasFlowProps) {
+  const router = useRouter()
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow()
   const viewport = useViewport()
   const { zoom } = viewport
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
+  const [variants, setVariants] = useState<CanvasLayout[]>(initialVariants)
 
   const [nodes, setNodes] = useNodesState(
     applyOverlapFlags(initialObjects.map(objectToNode))
@@ -384,6 +390,14 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
     label: (n.data as MachineNodeData).label,
   }))
 
+  function handleVariantChange(variantId: string) {
+    // BUG-3 fix: flush unsaved changes before navigating away
+    if (saveStatus === 'unsaved') {
+      performSave(nodes)
+    }
+    router.push(`?variant=${variantId}`)
+  }
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <FixedObjectsDialog
@@ -404,7 +418,18 @@ function CanvasFlow({ projectName, projectId, layout, initialObjects, initialMac
         onTabChange={setActiveTab}
       />
 
-      {activeTab === 'canvas' ? (
+      {/* Variant tab bar — always visible */}
+      <VariantBar
+        projectId={projectId}
+        variants={variants}
+        activeVariantId={layout.id}
+        onVariantChange={handleVariantChange}
+        onVariantsUpdate={setVariants}
+      />
+
+      {activeTab === 'vergleich' ? (
+        <KpiComparisonPanel projectId={projectId} />
+      ) : activeTab === 'canvas' ? (
         <div className="flex flex-1 min-h-0">
           <MachineSidebar
             projectId={projectId}
@@ -542,6 +567,7 @@ type Props = {
   layout: CanvasLayout
   initialObjects: CanvasObject[]
   initialMachineTypes: MachineType[]
+  variants: CanvasLayout[]
 }
 
 export function CanvasClient(props: Props) {

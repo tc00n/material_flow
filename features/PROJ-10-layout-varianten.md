@@ -132,7 +132,7 @@ None — all libraries already installed.
 | Case | Result | Notes |
 |------|--------|-------|
 | Letzte Variante kann nicht gelöscht werden | ✅ PASS | `deleteVariant` returns error "Letzte Variante kann nicht gelöscht werden" when `count ≤ 1`; delete button disabled in UI |
-| > 5 Varianten: Warnung | ❌ FAIL | **BUG-2** — No warning displayed when adding a 6th variant; spec requires a warning but no hard limit |
+| > 5 Varianten: Warnung | ✅ FIXED | BUG-2 fixed: warning shown in inline error bar when adding ≥6th variant (creation still allowed) |
 
 ### Security Audit
 
@@ -146,51 +146,27 @@ None — all libraries already installed.
 
 ### Bugs Found
 
-#### BUG-1 — Double server call on Enter+blur in inline rename
-**Severity:** Medium
-**Location:** [variant-bar.tsx:36-51](src/components/canvas/variant-bar.tsx#L36-L51)
-**Steps to reproduce:**
-1. Double-click a variant tab to open inline rename
-2. Type a new name
-3. Press Enter
-
-**Expected:** `renameVariant` called once.
-**Actual:** `renameVariant` called twice — `onKeyDown` calls `commitRename`, then `onBlur` fires before the async transition completes and React state updates `editingId`, calling `commitRename` a second time.
-**Fix:** Use a ref to guard against the second call, e.g. `if (isCommittingRef.current) return; isCommittingRef.current = true`.
+#### BUG-1 — Double server call on Enter+blur in inline rename ✅ FIXED
+**Severity:** Medium → Fixed 2026-04-16
+**Fix applied:** Added `committingRef` (useRef) to `VariantBar`. `commitRename` returns early if the ref is already set; the ref is reset after the transition completes. Prevents the second `renameVariant` call from `onBlur`.
 
 ---
 
-#### BUG-2 — Missing >5 variants warning
-**Severity:** Medium
-**Location:** [variant-bar.tsx:53-65](src/components/canvas/variant-bar.tsx#L53-L65) — `handleAddVariant`
-**Steps to reproduce:**
-1. Create 5 variants
-2. Click "+" to add a 6th
-
-**Expected:** A warning is shown (e.g. "Mehr als 5 Varianten können die Übersichtlichkeit beeinträchtigen") while still allowing creation.
-**Actual:** Variant is created silently with no warning.
-**Fix:** In `handleAddVariant`, check `variants.length >= 5` before creating and set `error` state with a warning message.
+#### BUG-2 — Missing >5 variants warning ✅ FIXED
+**Severity:** Medium → Fixed 2026-04-16
+**Fix applied:** `handleAddVariant` sets an inline error message ("Mehr als 5 Varianten können die Übersichtlichkeit beeinträchtigen.") when `variants.length >= 5`. Creation proceeds normally — no hard limit.
 
 ---
 
-#### BUG-3 — No unsaved-changes guard when switching variants
-**Severity:** Medium
-**Location:** [canvas-client.tsx:393-395](src/components/canvas/canvas-client.tsx#L393-L395) — `handleVariantChange`
-**Steps to reproduce:**
-1. Move a node on the canvas (save status → "Nicht gespeichert")
-2. Click a different variant tab within 2 seconds (before debounce fires)
-
-**Expected:** Immediate save is triggered before navigation, OR user is warned about unsaved changes.
-**Actual:** `router.push()` navigates immediately. The debounced save never fires for the old variant because the component unmounts.
-**Fix:** In `handleVariantChange`, call `performSave(nodes)` directly (bypassing the debounce) before `router.push(...)`, or check `saveStatus === 'unsaved'` and await the save first.
+#### BUG-3 — No unsaved-changes guard when switching variants ✅ FIXED
+**Severity:** Medium → Fixed 2026-04-16
+**Fix applied:** `handleVariantChange` in `CanvasClient` now checks `saveStatus === 'unsaved'` and calls `performSave(nodes)` directly (bypassing the debounce) before `router.push(...)`.
 
 ---
 
-#### BUG-4 — Context menu only accessible on active variant tab
-**Severity:** Low
-**Location:** [variant-bar.tsx:133-165](src/components/canvas/variant-bar.tsx#L133-L165)
-**Description:** The `[...]` dropdown (Umbenennen / Duplizieren / Löschen) is only rendered for the currently active tab. To delete or duplicate an inactive variant, the user must first switch to it. This is a minor ergonomic issue.
-**Fix:** Render the dropdown on all tabs, or show it on hover for inactive tabs too.
+#### BUG-4 — Context menu only accessible on active variant tab ✅ FIXED
+**Severity:** Low → Fixed 2026-04-16
+**Fix applied:** Removed the `isActive &&` guard on the dropdown render condition. Context menu (Umbenennen / Duplizieren / Löschen) is now visible on hover for all tabs.
 
 ### Regression Testing
 
@@ -203,9 +179,7 @@ None — all libraries already installed.
 | PROJ-9: Auto-Layout-Optimierung | ✅ No regression |
 
 ### Production-Ready Decision
-**NOT READY** — BUG-3 (Medium: data loss risk on variant switch) should be fixed before deployment. BUG-1 and BUG-2 are also Medium severity.
-
-Minimum bar for Approved: fix BUG-3 (data loss). BUG-1 and BUG-2 are recommended fixes before deploy.
+**READY** — All 4 bugs fixed (2026-04-16). No Critical or High bugs remain.
 
 ## Deployment
 _To be added by /deploy_
